@@ -1,0 +1,46 @@
+version: '3.9'
+
+services:
+  mongo:
+    container_name: mongo
+    image: mongo:${MONGO_VERSION} # https://hub.docker.com/_/mongo
+    entrypoint:
+      - bash
+      - -c
+      - |
+        if [ ! -f ${MONGO_REPLICA_SET_KEY_FILE} ]; then
+          echo "generating replica set key file ..."
+          openssl rand -base64 756 > ${MONGO_REPLICA_SET_KEY_FILE}
+          chmod 600 ${MONGO_REPLICA_SET_KEY_FILE}
+          chown 999:999 ${MONGO_REPLICA_SET_KEY_FILE}
+        fi
+        exec docker-entrypoint.sh $$@
+    command: "--bind_ip_all --replSet ${MONGO_REPLICA_SET_NAME} --keyFile ${MONGO_REPLICA_SET_KEY_FILE}"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    volumes:
+      - mongo_data:/data/db  # Named volume untuk menyimpan data MongoDB
+    ports:
+      - 27017:27017
+    healthcheck:
+      test: test $$(echo "rs.initiate().ok || rs.status().ok" | mongo -u $${MONGO_INITDB_ROOT_USERNAME} -p $${MONGO_INITDB_ROOT_PASSWORD} --quiet) -eq 1
+      start_period: 30s
+    restart: unless-stopped
+
+  mongo-gui:
+    container_name: mongo-gui
+    image: mongo-express:${MONGO_GUI_VERSION} # https://hub.docker.com/_/mongo-express
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_USERNAME}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_PASSWORD}
+      ME_CONFIG_MONGODB_SERVER: mongo
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: true
+    ports:
+      - 8081:8081
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: unless-stopped
+volumes:
+  mongo_data:  # Definisi named volume
