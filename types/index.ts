@@ -2,11 +2,14 @@ import { Contract, User } from "@prisma/client";
 
 export type SafeInvoice = Omit<
   Contract,
-  "endDate" | "createdAt" | "updatedAt"
+  "endDate" | "createdAt" | "updatedAt" | "userName" | "investorName" | "currentRole"
 > & {
   endDate: string;
   createdAt: string;
   updatedAt: string;
+  userName?: string; 
+  investorName?: string; 
+  currentRole?:string;
 };
 
 export type SafeUser = Omit<

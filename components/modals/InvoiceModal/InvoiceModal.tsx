@@ -273,13 +273,13 @@ const InvoiceModal = ({ currentUser }: { currentUser: CurrentUser }) => {
                 onChange={(value) => setCustomValue("investorId", value)}
                 errors={errors}
               />
-              <Input
+              {/* <Input
                 id="emailShahibulMal"
                 label="Email"
                 register={register}
                 errors={errors}
                 required
-              />
+              /> */}
               
             </div>
             {/* Bill to */}

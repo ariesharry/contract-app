@@ -17,13 +17,29 @@ export async function POST(request: Request, { params }: { params: IParams }) {
 
   const { invoiceId } = params;
 
+  // Get the status from the request body
+  const body = await request.json();
+  const status = body.status;
+
+  // Define valid status values (string)
+  const validStatuses = ["ACTIVE", "REJECTED"];
+
+  // Check if the status is valid
+  if (!validStatuses.includes(status)) {
+    return NextResponse.error();  // Return error if the status is invalid
+  }
+
+  // Map the status string to the corresponding Status enum value
+  const mappedStatus = status === "ACTIVE" ? Status.ACTIVE : Status.REJECTED;
+
   const invoice = await prisma.contract.updateMany({
     where: {
       id: invoiceId,
-      userId: currentUser.id,
+      // Dynamically use userId or investorId based on the role
+      [currentUser.role === "Shahibul Mal" ? "investorId" : "userId"]: currentUser.id,
     },
     data: {
-      status: Status.ACTIVE,
+      status: mappedStatus,
     },
   });
 
@@ -43,7 +59,6 @@ export async function PATCH(request: Request, { params }: { params: IParams }) {
 
   const {
     investorId,
-    managerId,
     name,
     description,
     startDate,
@@ -93,8 +108,7 @@ export async function PATCH(request: Request, { params }: { params: IParams }) {
       id: invoiceId,
     },
     data: {
-      investorId: investorId.value,
-      managerId,
+      investorId: investorId.id,
       name,
       description,
       startDate,

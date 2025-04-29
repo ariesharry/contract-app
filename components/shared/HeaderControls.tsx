@@ -1,9 +1,8 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Plus } from "@/assets/icons";
 import Filter from "./Filter";
-
 import { SafeUser } from "@/types";
 
 import { useAppDispatch } from "@/libs/redux/hooks";
@@ -15,33 +14,31 @@ interface HeaderControlsProps {
   numOfInvoices: number;
 }
 
-const StatusCards: React.FC = () => {
-  const statuses = [
-    { title: "Active", count: 10, color: "bg-green-100 text-green-700" },
-    { title: "Created", count: 5, color: "bg-yellow-100 text-yellow-700" },
-    { title: "Completed", count: 2, color: "bg-red-100 text-red-700" },
-  ];
-
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
-      {statuses.map((status) => (
-        <div
-          key={status.title}
-          className={`p-4 rounded-lg shadow-sm border ${status.color}`}
-        >
-          <h2 className="text-lg font-semibold">{status.title}</h2>
-          <p className="text-2xl font-bold">{status.count}</p>
-        </div>
-      ))}
-    </div>
-  );
-};
-
 const HeaderControls: React.FC<HeaderControlsProps> = ({
   currentUser,
   numOfInvoices,
 }) => {
   const dispatch = useAppDispatch();
+
+  const [statusCounts, setStatusCounts] = useState({
+    created: 0,
+    active: 0,
+    completed: 0,
+  });
+
+  useEffect(() => {
+    async function fetchStatusCounts() {
+      try {
+        const response = await fetch('/api/infoStatus');
+        const data = await response.json();
+        setStatusCounts(data);
+      } catch (error) {
+        console.error("Failed to fetch status counts:", error);
+      }
+    }
+
+    fetchStatusCounts();
+  }, []);
 
   const createNewInvoice = useCallback(() => {
     if (!currentUser) {
@@ -51,15 +48,31 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({
     dispatch(onInvoiceOpen());
   }, [currentUser, dispatch]);
 
+  const statuses = [
+    { title: "Active", count: statusCounts.active, color: "bg-green-100 text-green-700" },
+    { title: "Created", count: numOfInvoices, color: "bg-yellow-100 text-yellow-700" },
+    { title: "Completed", count: statusCounts.completed, color: "bg-red-100 text-red-700" },
+  ];
+
   return (
     <div className="z-10 flex flex-col gap-6">
       {/* Header Section */}
       <h1 className="text-[20px] sm:text-[32px] font-bold text-primary">
-        Mudharabah Financing System 
+        Mudharabah Financing System
       </h1>
 
       {/* Status Cards Section */}
-      <StatusCards />
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+        {statuses.map((status) => (
+          <div
+            key={status.title}
+            className={`p-4 rounded-lg shadow-sm border ${status.color}`}
+          >
+            <h2 className="text-lg font-semibold">{status.title}</h2>
+            <p className="text-2xl font-bold">{status.count}</p>
+          </div>
+        ))}
+      </div>
 
       {/* Controls Section */}
       <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-4 sm:gap-6">

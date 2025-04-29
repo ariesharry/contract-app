@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { FieldErrors, FieldValues, UseFormRegister } from "react-hook-form";
 import Select from "react-select";
 
@@ -40,7 +40,8 @@ const CountrySelect: React.FC<SelectProps> = ({
         const data = await response.json();
 
         // Map the response data to Select options
-        const mappedOptions = data.map((user: { email: string; name: string }) => ({
+        const mappedOptions = data.map((user: { id: object; email: string; name: string }) => ({
+          id: user.id,
           value: user.email,
           label: user.name,
         }));

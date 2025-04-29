@@ -31,8 +31,8 @@ const Input: React.FC<CheckProps> = ({ id, label, checked }) => {
     } else {
       if (label === "draft") {
         updatedQuery = { ...currentQuery, draft: false };
-      } else if (label === "pending") {
-        updatedQuery = { ...currentQuery, pending: false };
+      } else if (label === "created") {
+        updatedQuery = { ...currentQuery, created: false };
       } else {
         updatedQuery = { ...currentQuery, paid: false };
       }

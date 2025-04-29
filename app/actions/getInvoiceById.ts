@@ -28,9 +28,9 @@ export default async function getInvoiceById(params: IParams) {
       return null;
     }
 
-    if (invoice.userId !== currentUser.id) {
+    if (invoice.userId !== currentUser.id && invoice.investorId !== currentUser.id) {
       return null;
-    }
+    }    
 
     return {
       ...invoice,

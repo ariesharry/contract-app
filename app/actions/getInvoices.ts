@@ -5,13 +5,13 @@ import { Status } from "@prisma/client";
 
 export interface IInvoicesParams {
   draft?: string;
-  pending?: string;
+  created?: string;
   paid?: string;
 }
 
 export default async function getInvoices(params: IInvoicesParams) {
   try {
-    const { draft, pending, paid } = params;
+    const { draft, created, paid } = params;
     const currentUser = await getCurrentUser();
 
     if (!currentUser) {
@@ -19,7 +19,14 @@ export default async function getInvoices(params: IInvoicesParams) {
     }
 
     let query: any = {};
-    query.userId = currentUser.id;
+    // Filter berdasarkan peran pengguna
+    if (currentUser.role === "Mudharib") {
+      // Jika Mudharib, cari kontrak berdasarkan userId
+      query.userId = currentUser.id;
+    } else if (currentUser.role === "Shahibul Mal") {
+      // Jika Shaibul Mal, cari kontrak berdasarkan investorId
+      query.investorId = currentUser.id;
+    }
 
     const statusArray = [];
 
@@ -27,7 +34,7 @@ export default async function getInvoices(params: IInvoicesParams) {
       statusArray.push({ status: Status.CREATED });
     }
 
-    if (!pending) {
+    if (!created) {
       statusArray.push({ status: Status.CREATED });
     }
 
@@ -35,7 +42,7 @@ export default async function getInvoices(params: IInvoicesParams) {
       statusArray.push({ status: Status.ACTIVE });
     }
 
-    if (paid || pending || draft) {
+    if (paid || created || draft) {
       query.OR = statusArray;
     }
 

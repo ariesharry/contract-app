@@ -36,8 +36,13 @@ export const deleteInvoice = createAsyncThunk(
 
 export const updateStatus = createAsyncThunk(
   "invoice/updateStatus",
-  async (data: String) => {
-    const res = await axios.post(`/api/invoices/${data}`);
+  async ({ invoiceId, status }: { invoiceId: string; status: string }) => {
+    // Make sure the status is either "ACTIVE" or "REJECTED"
+    if (![ "ACTIVE", "REJECTED" ].includes(status)) {
+      throw new Error("Invalid status");
+    }
+
+    const res = await axios.post(`/api/invoices/${invoiceId}`, { status });
     return res.data;
   }
 );

@@ -35,11 +35,13 @@ const InvoiceInfo: React.FC<InvoiceInfoProps> = ({ invoice }) => {
 
         {/* Parties Involved */}
         <div className="flex flex-col col-start-1 gap-1 sm:text-right sm:col-start-3">
-          <div>
-            <span className="font-medium">Mudharib: </span>{invoice.managerId || "N/A"}
+          <div className="flex flex-col gap-1">
+            <span className="font-medium">Mudharib: </span>
+            <span className="font-bold">{invoice.userName || "N/A"}</span>
           </div>
-          <div>
-            <span className="font-medium">Shahibul Mal: </span>{invoice.investorId || "N/A"}
+          <div className="flex flex-col gap-1">
+            <span className="font-medium">Shahibul Mal: </span>
+            <span className="font-bold">{invoice.investorName || "N/A"}</span>
           </div>
         </div>
 

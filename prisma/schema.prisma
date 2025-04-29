@@ -11,15 +11,16 @@ model User {
   id             String    @id @default(auto()) @map("_id") @db.ObjectId
   name           String?
   email          String?   @unique
-  role           String?
+  role           String?   // Mudharib (contract creator) or ShaibulMal (investor)
   emailVerified  DateTime?
   image          String?
   hashedPassword String?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  accounts            Account[]
-  contract            Contract[]
+  accounts Account[]
+  contracts Contract[] @relation("UserContracts")
+  managedContracts Contract[] @relation("InvestorContracts")
 }
 
 model Account {
@@ -43,9 +44,8 @@ model Account {
 
 model Contract {
   id                 String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId             String   @db.ObjectId
-  investorId         String?   
-  managerId          String?   
+  userId             String   @db.ObjectId // Mudharib ID
+  investorId         String   @db.ObjectId // Shaibul Mal ID
   name               String?
   description        String?
   startDate          DateTime
@@ -54,10 +54,13 @@ model Contract {
   profitSharingRatio Float // Percentage (e.g., 70.0 for 70%)
   status             Status   @default(CREATED)
   contractFileUrl    String? // URL of the uploaded PDF file
+  decisionDate       DateTime?
+  decisionNotes      String?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
-  
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  user     User   @relation("UserContracts", fields: [userId], references: [id], onDelete: Cascade) // Relation to Mudharib
+  investor User   @relation("InvestorContracts", fields: [investorId], references: [id], onDelete: Cascade) // Relation to Shaibul Mal
 
   profitRecords ProfitRecord[]
 }
@@ -67,7 +70,7 @@ model ProfitRecord {
   contractId    String   @db.ObjectId
   profitAmount  Float
   investorShare Float
-  managerShare  Float
+  mudharibShare Float
   recordedAt    DateTime @default(now())
 
   contract Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
@@ -78,4 +81,5 @@ enum Status {
   ACTIVE
   COMPLETED
   DEFAULT
+  REJECTED
 }

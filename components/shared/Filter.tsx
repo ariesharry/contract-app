@@ -9,7 +9,7 @@ const Filter = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const draft = params?.get("draft");
-  const pending = params?.get("pending");
+  const created = params?.get("created");
   const paid = params?.get("paid");
 
   return (
@@ -29,9 +29,9 @@ const Filter = () => {
         <div className="w-[192px] absolute flex flex-col gap-4 p-6 mt-1 -translate-x-1/2 rounded left-1/2 bottom-100 mt- shadow-customShadow bg-popupBg">
           <Check label="draft" id="draft" checked={!draft ? true : false} />
           <Check
-            label="pending"
-            id="pending"
-            checked={!pending ? true : false}
+            label="created"
+            id="created"
+            checked={!created ? true : false}
           />
           <Check label="paid" id="paid" checked={!paid ? true : false} />
         </div>

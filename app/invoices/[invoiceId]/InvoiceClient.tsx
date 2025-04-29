@@ -16,10 +16,13 @@ interface InvoiceClientProps {
 const InvoiceClient: React.FC<InvoiceClientProps> = ({ invoice }) => {
   const status =
     invoice.status === "CREATED"
-      ? "pending"
-      : invoice.status === "ACTIVE"
-      ? "draft"
-      : "paid";
+    ? "created"
+    : invoice.status === "ACTIVE"
+    ? "active"
+    : invoice.status === "REJECTED"
+    ? "rejected"
+    : "completed";
+
 
   return (
     <div className="flex flex-col h-full gap-6 text-sm font-bold text-primary">

@@ -36,10 +36,28 @@ const InvoiceActionButtons: React.FC<InvoiceActionButtonsProps> = ({
   }, [dispatch, invoice.id]);
 
   const handleStatusUpdate = useCallback(() => {
-    dispatch(updateStatus(invoice.id))
+    // Dispatch with both invoiceId and the current status (either ACTIVE or REJECTED)
+    dispatch(updateStatus({ invoiceId: invoice.id, status: "ACTIVE" }))
       .then(unwrapResult)
       .then(() => {
         router.refresh();
+      })
+      .catch((error) => {
+        console.error("Failed to update status:", error);
+      });
+  }, [dispatch, invoice.id, router]);
+
+  console.log("Role sekarang:", invoice.currentRole);
+
+  const handleStatusReject = useCallback(() => {
+    // Dispatch with both invoiceId and the current status (either ACTIVE or REJECTED)
+    dispatch(updateStatus({ invoiceId: invoice.id, status: "REJECTED" }))
+      .then(unwrapResult)
+      .then(() => {
+        router.refresh();
+      })
+      .catch((error) => {
+        console.error("Failed to update status:", error);
       });
   }, [dispatch, invoice.id, router]);
 
@@ -52,16 +70,17 @@ const InvoiceActionButtons: React.FC<InvoiceActionButtonsProps> = ({
         label="Edit"
       />
       <Button
-        onClick={handleDeleteModal}
+        onClick={invoice.currentRole !=="Mudharib" ? handleStatusReject : handleDeleteModal}
         disabled={isLoading}
         color="red"
-        label="Delete"
+        label={invoice.currentRole !=="Mudharib" ? "Reject" : "Delete"}
       />
+
       <Button
         onClick={handleStatusUpdate}
         disabled={isLoading || status === "paid"}
         color="purple"
-        label="Mark as Paid"
+        label="Accept"
       />
     </>
   );

@@ -14,7 +14,6 @@ export async function POST(request: Request) {
 
   const {
     investorId,
-    managerId,
     name,
     description,
     startDate,
@@ -56,8 +55,7 @@ export async function POST(request: Request) {
   const invoice = await prisma.contract.create({
     data: {
       userId: currentUser.id,
-      investorId: investorId.value,
-      managerId,
+      investorId: investorId.id,
       name,
       description,
       startDate,
